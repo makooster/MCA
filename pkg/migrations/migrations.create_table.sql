@@ -16,5 +16,5 @@ CREATE TABLE IF NOT EXISTS genres_ans_dramas (
     genre_id INT,
     drama_id INT,
     FOREIGN KEY (genre_id) REFERENCES genres(genre_id),
-    FOREIGN KEY (drama_id) REFERENCES dramas(movie_id)
+    FOREIGN KEY (drama_id) REFERENCES dramas(drama_id)
 );

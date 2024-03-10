@@ -51,7 +51,7 @@ func main() {
 	var cfg config
 	flag.StringVar(&cfg.port, "port", ":8081", "API server port")
 	flag.StringVar(&cfg.env, "env", "development", "Environment (development|staging|production)")
-	flag.StringVar(&cfg.db.dsn, "db-dsn", "postgres://postgres:1234Asdf@localhost:5432/go?sslmode=disable", "PostgreSQL DSN")
+	flag.StringVar(&cfg.db.dsn, "db-dsn", "postgresql://postgres:qwerty@localhost:5432/mca?sslmode=disable", "PostgreSQL DSN")
 
 	flag.Parse()
 
