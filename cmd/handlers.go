@@ -17,6 +17,7 @@ func (app *application) UserHandler(w http.ResponseWriter, r *http.Request) {
 func (app *application) HomeHandler(w http.ResponseWriter, r *http.Request) {
 	app.respondWithJSON(w, http.StatusOK, map[string]string{"message": "Welcome to the home page"})
 }
+
 func (app *application) respondWithError(w http.ResponseWriter, code int, message string) {
 	app.respondWithJSON(w, code, map[string]string{"error": message})
 }
