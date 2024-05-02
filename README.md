@@ -1,4 +1,4 @@
-# Movie Catalog App
+# Doramas Catalogue App
 
 This is a simple movie catalog app that allows users to manage movies, genres, and actors. The app provides RESTful APIs for basic CRUD operations on movies, genres, and actors.
 

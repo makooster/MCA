@@ -1,20 +1,24 @@
-CREATE TABLE IF NOT EXISTS genres (
+CREATE TABLE genres (
     genre_id SERIAL PRIMARY KEY,
-    name VARCHAR(50) NOT NULL
+    genre_name VARCHAR(255) NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS dramas (
-    drama_id SERIAL PRIMARY KEY,
+CREATE TABLE IF NOT EXISTS doramas (
+    dorama_id SERIAL PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
     description TEXT,
     release_year INT,
-    main_actors VARCHAR(255)
+    duration INT,
+    main_actors text,
+    genre_id integer,
+    foreign key (genre_id) references genres(genre_id)
 );
 
-CREATE TABLE IF NOT EXISTS genres_ans_dramas (
-    id SERIAL PRIMARY KEY,
-    genre_id INT,
-    drama_id INT,
-    FOREIGN KEY (genre_id) REFERENCES genres(genre_id),
-    FOREIGN KEY (drama_id) REFERENCES dramas(drama_id)
-);
+create table if not exists actors (
+    id serial primary key,
+    full_name varchar(255),
+    dorama_id integer,
+    foreign key (dorama_id) references doramas(dorama_id)
+ );
+
+

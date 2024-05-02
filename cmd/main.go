@@ -19,28 +19,51 @@ type config struct {
 	}
 }
 
+// type application struct {
+// 	config config
+// 	models model.Models
+// }
+
 type application struct {
 	config config
+	logger log.Logger
 	models model.Models
 }
 
+
 func (app *application) run() {
 	r := mux.NewRouter()
-
+	//Home 
 	r.HandleFunc("/", app.HomeHandler)
 	r.HandleFunc("/user", app.UserHandler)
-	r.HandleFunc("/dramas", app.DramaHandler).Methods("GET")
-	r.HandleFunc("/dramas", app.createDramaHandler).Methods("POST")
-	r.HandleFunc("/dramas/{id}", app.getDramaHandler).Methods("GET")
-	r.HandleFunc("/dramas/{id}", app.updateDramaHandler).Methods("PUT")
-	r.HandleFunc("/dramas/{id}", app.deleteDramaHandler).Methods("DELETE")
-	r.HandleFunc("/actors", app.ActorHandler).Methods("GET")
-	r.HandleFunc("/actors", app.createActorHandler).Methods("POST")
-	r.HandleFunc("/actors/{id}", app.getActorHandler).Methods("GET")
-	r.HandleFunc("/actors/{id}", app.updateActorHandler).Methods("PUT")
-	r.HandleFunc("/actors/{id}", app.deleteActorHandler).Methods("DELETE")
-	r.HandleFunc("/dramas", app.getDramasHandler).Methods("GET")
+	
+
+	//Healthcheck 
+	r.HandleFunc("/check", app.healthcheckHandler).Methods("GET")
+	
+	// r.HandleFunc("/doramas", app.getDoramasHandler).Methods("GET")
+	// r.HandleFunc("/actors", app.getActorsHandler).Methods("GET")
+
+	//GET methods
+
+	// r.HandleFunc("/genres", app.GenreHandler).Methods("GET")
+	r.HandleFunc("/list", app.getDoramaListHandler).Methods("GET")
+	r.HandleFunc("/doramas/{id}", app.getDoramaHandler).Methods("GET")
 	r.HandleFunc("/actors", app.getActorsHandler).Methods("GET")
+	r.HandleFunc("/actors/{id}", app.getActorHandler).Methods("GET")
+
+	//POST methods
+	r.HandleFunc("/doramas", app.createDoramaHandler).Methods("POST")
+	r.HandleFunc("/actors", app.createActorHandler).Methods("POST")
+
+	//DELETE methods 
+	r.HandleFunc("/doramas/{id}", app.deleteDoramaHandler).Methods("DELETE")
+	r.HandleFunc("/actors/{id}", app.deleteActorHandler).Methods("DELETE")
+
+	//PUT methods 
+	r.HandleFunc("/doramas/{id}", app.updateDoramaHandler).Methods("PUT")
+	r.HandleFunc("/actors/{id}", app.updateActorHandler).Methods("PUT")
+	
 
 	log.Printf("Starting server on %s\n", app.config.port)
 	err := http.ListenAndServe(app.config.port, r)
@@ -49,7 +72,7 @@ func (app *application) run() {
 
 func main() {
 	var cfg config
-	flag.StringVar(&cfg.port, "port", ":8081", "API server port")
+	flag.StringVar(&cfg.port, "port", ":8080", "API server port")
 	flag.StringVar(&cfg.env, "env", "development", "Environment (development|staging|production)")
 	flag.StringVar(&cfg.db.dsn, "db-dsn", "postgresql://postgres:qwerty@localhost:5432/mca?sslmode=disable", "PostgreSQL DSN")
 
