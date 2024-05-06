@@ -6,6 +6,7 @@ import (
 	"github.com/makooster/MCA/pkg/model"
 	"github.com/makooster/MCA/pkg/validator"
 )
+
 func (app *application) createAuthenticationTokenHandler(w http.ResponseWriter, r *http.Request) {
 // Parse the email and password from the request body.
 var input struct {

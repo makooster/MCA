@@ -25,28 +25,6 @@ type DoramaModel struct {
 	ErrorLog *log.Logger
 }
 
-// func (dm *DoramaModel) GetAll(title string, filters Filters)([]*Dorama,Metadata,error){
-	
-// 	query := `
-// 	SELECT dorama_id, title, description, release_year, duration, main_actors, genre_id
-// 	FROM doramas
-// 	WHERE dorama_id = $1
-// `
-// 	dorama := &Dorama{}	
-// 	args := []interface{}{dorama.Title, dorama.Description, dorama.ReleaseYear, dorama.Duration, dorama.MainActors}
-
-// 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
-// 	defer cancel()
-// 	// Organize our four placeholder parameter values in a slice.
-// 	args := []interface{}{title, from, to, filters.limit(), filters.offset()}
-
-// 	rows, err := dm.DB.QueryContext(ctx, query, args...)
-// 	if err != nil {
-// 		return nil, Metadata{}, err
-// 	}
-
-// }
-
 func (m DoramaModel) GetAll(title string, releaseYear int,filters Filters) ([]*Dorama, Metadata, error) {
 	// Retrieve all doramas from the database.
 	query := fmt.Sprintf(

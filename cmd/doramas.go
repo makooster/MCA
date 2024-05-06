@@ -71,29 +71,6 @@ func (app *application) getDoramaListHandler(w http.ResponseWriter, r *http.Requ
 	}
 }
 
-// func (app *application) getDoramasHandler(w http.ResponseWriter, r *http.Request){
-// 	var input model.Dorama
-
-// 	err := app.readJSON(w, r, &input)
-// 	if err != nil {
-// 		app.badRequestResponse(w, r, err)
-// 		return
-// 	}
-
-// 	dorama, err := app.models.Doramas.Get(input.DoramaId) 
-// 	if err != nil {
-// 		if errors.Is(err, sql.ErrNoRows) {
-// 			app.respondWithError(w, http.StatusNotFound, "Dorama not found")
-// 			return
-// 		} else {
-// 			app.respondWithError(w, http.StatusInternalServerError, "500 Internal Server Error")
-// 			return
-// 		}
-// 	}
-
-// 	app.respondWithJSON(w, http.StatusOK, dorama)
-// }
-
 func (app *application) getDoramaHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	param := vars["id"]
