@@ -111,41 +111,41 @@ func (app *application) createDoramaHandler(w http.ResponseWriter, r *http.Reque
 }
 
 func (app *application) updateDoramaHandler(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	param := vars["id"]
+    vars := mux.Vars(r)
+    param := vars["id"]
+    id, err := strconv.Atoi(param)
+    if err != nil || id < 1 {
+        app.respondWithError(w, http.StatusBadRequest, "Invalid dorama ID")
+        return
+    }
 
-	id, err := strconv.Atoi(param)
-	if err != nil || id < 1 {
-		app.respondWithError(w, http.StatusBadRequest, "Invalid drama ID")
-		return
-	}
+    dorama, err := app.models.Doramas.Get(id)
+    if err != nil {
+        app.respondWithError(w, http.StatusNotFound, "404 Not Found")
+        return
+    }
 
-	dorama, err := app.models.Doramas.Get(id)
-	if err != nil {
-		app.respondWithError(w, http.StatusNotFound, "404 Not Found")
-		return
-	}
+    var input model.Dorama
+    err = app.readJSON(w, r, &input)
+    if err != nil {
+        app.respondWithError(w, http.StatusBadRequest, "Invalid request payload")
+        return
+    }
 
-	var input model.Dorama
+    dorama.Title = input.Title
+    dorama.Description = input.Description
+    dorama.ReleaseYear = input.ReleaseYear
+    dorama.MainActors = input.MainActors
+    dorama.Duration = input.Duration
+    dorama.GenreId = input.GenreId
 
-	err = app.readJSON(w, r, &input)
-	if err != nil {
-		app.respondWithError(w, http.StatusBadRequest, "Invalid request payload")
-		return
-	}
+    err = app.models.Doramas.Update(dorama)
+    if err != nil {
+        app.respondWithError(w, http.StatusInternalServerError, "500 Internal Server Error")
+        return
+    }
 
-	dorama.Title = input.Title
-	dorama.Description = input.Description
-	dorama.ReleaseYear = input.ReleaseYear
-	dorama.MainActors = input.MainActors
-
-	err = app.models.Doramas.Update(dorama)
-	if err != nil {
-		app.respondWithError(w, http.StatusInternalServerError, "500 Internal Server Error")
-		return
-	}
-
-	app.respondWithJSON(w, http.StatusOK, dorama)
+    app.respondWithJSON(w, http.StatusOK, dorama)
 }
 
 func (app *application) deleteDoramaHandler(w http.ResponseWriter, r *http.Request) {

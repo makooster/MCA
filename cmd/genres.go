@@ -1,19 +1,19 @@
 package main
 
 import (
-	"net/http" 
+	"net/http"
 	"strconv"
 	"github.com/gorilla/mux"
 	"github.com/makooster/MCA/pkg/model"
 	"github.com/makooster/MCA/pkg/validator"
 )
 
-func (app *application) getActorListHandler(w http.ResponseWriter, r *http.Request){
+func (app *application) getGenresListHandler(w http.ResponseWriter, r *http.Request){
 	// Embed the new Filters struct.
 
 	var input struct {
-		Fullname      string `json:"full_name"`
-		DoramaID      int    `json:"dorama_id"`
+		GenreName      string `json:"genre_name"`
+		GenreID        int    `json:"genre_id"`
 		model.Filters
 	}
 
@@ -23,9 +23,9 @@ func (app *application) getActorListHandler(w http.ResponseWriter, r *http.Reque
 	// Call r.URL.Query() to get the url.Values map containing the query string data.
 	qs := r.URL.Query()
 
-	input.Fullname = app.readString(qs, "full_name", "")
+	input.GenreName = app.readString(qs, "genre_name", "")
 
-	input.DoramaID = app.readInt(qs, "dorama_id", 1, v)
+	input.GenreID = app.readInt(qs, "genre_id", 1, v)
 	// Get the page and page_size query string values as integers. Notice that we set
 	// the default page value to 1 and default page_size to 20, and that we pass the
 	// validator instance as the final argument here.
@@ -33,9 +33,9 @@ func (app *application) getActorListHandler(w http.ResponseWriter, r *http.Reque
 	input.Filters.PageSize = app.readInt(qs, "page_size", 20, v)
 	// Extract the sort query string value, falling back to "id" if it is not provided
 	// by the client (which will imply a ascending sort on movie ID).
-	input.Filters.Sort = app.readString(qs, "sort", "id")
+	input.Filters.Sort = app.readString(qs, "sort", "genre_id")
 	// Add the supported sort values for this endpoint to the sort safelist.
-	input.Filters.SortSafelist = []string{"id", "full_name","dorama_id", "-id", "-fullname","-dorama_id"}
+	input.Filters.SortSafelist = []string{"genre_id", "genre_name","-genre_id", "-genre_name"}
 
 	// Execute the validation checks on the Filters struct and send a response
 	// containing the errors if necessary.
@@ -47,7 +47,7 @@ func (app *application) getActorListHandler(w http.ResponseWriter, r *http.Reque
 	// parameters.
 	// Accept the metadata struct as a return value.
 	
-	actors, metadata, err := app.models.Actors.GetAll(input.Fullname, input.DoramaID, input.Filters)
+	genres, metadata, err := app.models.Actors.GetAll(input.GenreName, input.GenreID, input.Filters)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -56,14 +56,14 @@ func (app *application) getActorListHandler(w http.ResponseWriter, r *http.Reque
 	// Send a JSON response containing the movie data.
 	// Include the metadata in the response envelope.
 	
-	err = app.writeJSON(w, http.StatusOK, envelope{"actors": actors, "metadata": metadata}, nil)
+	err = app.writeJSON(w, http.StatusOK, envelope{"genres": genres, "metadata": metadata}, nil)
 	
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
 }
 
-func (app *application) getActorHandler(w http.ResponseWriter, r *http.Request) {
+func (app *application) getGenreHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	param := vars["id"]
 
@@ -82,7 +82,7 @@ func (app *application) getActorHandler(w http.ResponseWriter, r *http.Request) 
 	app.respondWithJSON(w, http.StatusOK, actor)
 }
 
-func (app *application) createActorHandler(w http.ResponseWriter, r *http.Request) {
+func (app *application) createGenreHandler(w http.ResponseWriter, r *http.Request) {
 	var input model.Actor
 
 	err := app.readJSON(w, r, &input)
@@ -100,22 +100,22 @@ func (app *application) createActorHandler(w http.ResponseWriter, r *http.Reques
 	app.respondWithJSON(w, http.StatusCreated, input)
 }
 
-func (app *application) updateActorHandler(w http.ResponseWriter, r *http.Request) {
+func (app *application) updateGenreHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	param := vars["id"]
 	id, err := strconv.Atoi(param)
 	if err != nil || id < 1 {
-		app.respondWithError(w, http.StatusBadRequest, "Invalid actor ID")
+		app.respondWithError(w, http.StatusBadRequest, "Invalid genre ID")
 		return
 	}
 
-	actor, err := app.models.Actors.Get(id)
+	genre, err := app.models.Genres.Get(id)
 	if err != nil {
 		app.respondWithError(w, http.StatusNotFound, "404 Not Found")
 		return
 	}
 
-	var input model.Actor
+	var input model.Genre
 
 	err = app.readJSON(w, r, &input)
 	if err != nil {
@@ -123,25 +123,25 @@ func (app *application) updateActorHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
  
-	actor.Name = input.Name
-	actor.DoramaID = input.DoramaID
+	genre.GenreName = input.GenreName
 	
-	err = app.models.Actors.Update(actor)
+	
+	err = app.models.Genres.Update(genre)
 	if err != nil {
 		app.respondWithError(w, http.StatusInternalServerError, "500 Internal Server Error")
 		return
 	}
 
-	app.respondWithJSON(w, http.StatusOK, actor)
+	app.respondWithJSON(w, http.StatusOK, genre)
 }
 
-func (app *application) deleteActorHandler(w http.ResponseWriter, r *http.Request) {
+func (app *application) deleteGenreHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	param := vars["id"]
 
 	id, err := strconv.Atoi(param)
 	if err != nil || id < 1 {
-		app.respondWithError(w, http.StatusBadRequest, "Invalid actor ID")
+		app.respondWithError(w, http.StatusBadRequest, "Invalid genre ID")
 		return
 	}
 

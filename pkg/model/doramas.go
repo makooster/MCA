@@ -16,7 +16,7 @@ type Dorama struct {
 	ReleaseYear int    `json:"release_year"`
 	Duration    int    `json:"duration"`
 	MainActors  string `json:"main_actors"`
-	GenreId     string `json:"genre_id"`
+	GenreId     int    `json:"genre_id"`
 }
 
 type DoramaModel struct {
@@ -81,15 +81,15 @@ func (m DoramaModel) GetAll(title string, releaseYear int,filters Filters) ([]*D
 
 func (dm *DoramaModel) Get(id int) (*Dorama, error) {
 	query := `
-        SELECT dorama_id, title, description, release_year, duration, main_actors, genre_id
-        FROM doramas
-        WHERE dorama_id = $1
+	SELECT dorama_id, title, description, release_year, duration, main_actors, genre_id
+	FROM doramas
+	WHERE dorama_id = $1
     `
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
 	dorama := &Dorama{}
-	err := dm.DB.QueryRowContext(ctx, query, id).Scan(&dorama.DoramaId, &dorama.Title, &dorama.Description, &dorama.ReleaseYear, &dorama.MainActors)
+	err := dm.DB.QueryRowContext(ctx, query, id).Scan(&dorama.DoramaId, &dorama.Title, &dorama.Description, &dorama.ReleaseYear,&dorama.Duration, &dorama.MainActors, &dorama.GenreId)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, errors.New("film not found")
@@ -105,9 +105,10 @@ func (dm *DoramaModel) Insert(dorama *Dorama) error {
 	query := `
 		INSERT INTO doramas (title, description, release_year, duration, main_actors, genre_id) 
 		VALUES ($1, $2, $3, $4, $5, $6) 
-		RETURNING dorama_id
+		where dorama_id = $7
+		RETURNING dorama_id,title, description, release_year, duration, main_actors, genre_id
 		`
-	args := []interface{}{dorama.Title, dorama.Description, dorama.ReleaseYear, dorama.MainActors}
+	args := []interface{}{dorama.Title, dorama.Description, dorama.ReleaseYear, dorama.Duration ,dorama.MainActors, dorama.GenreId}
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
@@ -115,17 +116,17 @@ func (dm *DoramaModel) Insert(dorama *Dorama) error {
 }
 
 func (dm *DoramaModel) Update(dorama *Dorama) error {
-	query := `
+    query := `
         UPDATE doramas
-        SET title = $1, description = $2, release_year = $3, duration = $4, main_actors = $5, genre_id = $7
-        WHERE dorama_id = $6
+        SET title = $1, description = $2, release_year = $3, duration = $4, main_actors = $5, genre_id = $6
+        WHERE dorama_id = $7
         RETURNING dorama_id
-        `
-	args := []interface{}{dorama.Title, dorama.Description, dorama.ReleaseYear, dorama.MainActors, dorama.DoramaId}
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
-	defer cancel()
-
-	return dm.DB.QueryRowContext(ctx, query, args...).Scan(&dorama.DoramaId)
+    `
+    args := []interface{}{dorama.Title,dorama.Description,dorama.ReleaseYear,dorama.Duration,dorama.MainActors,dorama.GenreId,dorama.DoramaId}
+    ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+    defer cancel()
+	
+    return dm.DB.QueryRowContext(ctx, query, args...).Scan(&dorama.DoramaId)
 }
 
 func (dm *DoramaModel) Delete(id int) error {

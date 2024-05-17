@@ -15,6 +15,7 @@ var (
 type Models struct {
 	Doramas DoramaModel
 	Actors ActorModel
+	Genres GenreModel
 	Users UserModel
 	Tokens TokenModel
 	Permissions PermissionModel
@@ -30,6 +31,11 @@ func NewModels(db *sql.DB) Models {
 			ErrorLog: errorLog,
 		},
 		Actors: ActorModel{
+			DB:       db,
+			InfoLog:  infoLog,
+			ErrorLog: errorLog,
+		},
+		Genres: GenreModel{
 			DB:       db,
 			InfoLog:  infoLog,
 			ErrorLog: errorLog,
